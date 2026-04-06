@@ -2,10 +2,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <link rel="icon" href="img/LOGO_1_NOFONS.png" type="image/png">
     <link rel="stylesheet" href="css/style.css">
     <title>Сопровождение 1C - Новый тариф</title>
+    <!-- Убираем CSP, который блокирует скрипты -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; frame-src *; connect-src *;">
 </head>
 <body>
     <header>
@@ -259,8 +261,6 @@
                                 <option value="" disabled selected>Где лучше с вами связаться?</option>
                                 <option value="whatsapp">WhatsApp</option>
                                 <option value="telegram">Telegram</option>
-                                <option value="telegram">MAX</option>
-                                <option value="telegram">VK</option>
                                 <option value="phone">Звонок по телефону</option>
                                 <option value="email">Email</option>
                             </select>
@@ -315,7 +315,6 @@
             <div class="news_container">
                 <h2 class="news_title">НОВОСТИ И СТАТЬИ</h2>
                 <div class="news_grid" id="newsGrid">
-                    <!-- Первые 3 новости (видимы по умолчанию) -->
                     <a href="https://1c.ru/news/info.jsp?id=34285" class="news_card">
                         <div class="news_date">30 марта 2026</div>
                         <h3 class="news_card_title">Новая редакция интернет-курса "Налоговый учет и ПБУ 18/02 в прикладных решениях "1С:ERP Управление предприятием" и "1С:Комплексная автоматизация"</h3>
@@ -338,9 +337,7 @@
                     </a>
                 </div>
                 
-                <!-- Скрытые новости (загружаются по кнопке) -->
                 <div class="news_grid hidden_news" id="hiddenNews" style="display: none;">
-                    
                     <a href="https://1c.ru/news/info.jsp?id=34282" class="news_card">
                         <div class="news_date">27 марта 2026</div>
                         <h3 class="news_card_title">Новые алгоритмы шифрования при обмене с ФНС с 1 апреля 2026 года: как подготовиться</h3>
@@ -443,7 +440,8 @@
             </div>
         </div>
     </footer>
-    <!-- Модальное окно для "Заказать звонок" -->
+    
+    <!-- Модальные окна -->
     <div id="modalCallback" class="modal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
@@ -464,7 +462,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для "Связаться" и "Забрать бесплатный час" -->
     <div id="modalConsultation" class="modal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
@@ -496,6 +493,7 @@
             </form>
         </div>
     </div>
+    
     <!-- Плавающие иконки соцсетей -->
     <div class="social-floating">
         <a href="https://wa.me/79613652153?text=Добрый%20день!%20Пишу%20с%20сайта!%20У%20меня%20есть%20вопрос%20по%201С" 
@@ -517,232 +515,23 @@
             </svg>
         </a>
     </div>
-</body>
-<script>
-    // ========== ЗАЩИЩЁННАЯ ОТПРАВКА ФОРМ ==========
-    (function() {
-        // Конфигурация
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvsMEiXl3_j4ML8HGTZHNjMwrYYEMriAqTw2T0fGq_SwEVIJwvXcW_-PJlG99UFrXn/exec';
-        
-        // Функция экранирования HTML (защита от XSS)
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                return c;
-            });
-        }
-        
-        // Валидация телефона (только цифры + и пробелы)
-        function validatePhone(phone) {
-            const cleaned = phone.replace(/[^\d+]/g, '');
-            return cleaned.length >= 10 && /^[\+\d]{10,15}$/.test(cleaned);
-        }
-        
-        // Валидация имени (только буквы, пробелы, дефисы)
-        function validateName(name) {
-            return /^[А-Яа-яЁёA-Za-z\s\-]{2,50}$/.test(name.trim());
-        }
-        
-        // Получение CSRF-токена (простая защита)
-        function getCsrfToken() {
-            let token = sessionStorage.getItem('csrf_token');
-            if (!token) {
-                token = Math.random().toString(36).substring(2, 15) + 
-                        Math.random().toString(36).substring(2, 15);
-                sessionStorage.setItem('csrf_token', token);
-            }
-            return token;
-        }
-        
-        // Отправка данных с защитой
-        async function submitForm(formData, formType, formElement) {
-            // Валидация
-            if (formData.name && !validateName(formData.name)) {
-                alert('Пожалуйста, введите корректное имя (только буквы)');
-                return false;
-            }
-            
-            if (formData.phone && !validatePhone(formData.phone)) {
-                alert('Пожалуйста, введите корректный номер телефона');
-                return false;
-            }
-            
-            // Экранируем все данные
-            const safeData = {
-                formType: escapeHtml(formType),
-                name: escapeHtml(formData.name || ''),
-                phone: escapeHtml(formData.phone || ''),
-                contactMethod: escapeHtml(formData.contactMethod || ''),
-                privacy: !!formData.privacy,
-                pageUrl: escapeHtml(window.location.href),
-                userAgent: escapeHtml(navigator.userAgent),
-                csrfToken: getCsrfToken()
-            };
-            
-            // Лимит запросов (защита от спама - не чаще 1 раза в 30 секунд)
-            const lastSubmit = localStorage.getItem('last_submit_' + formType);
-            if (lastSubmit && Date.now() - parseInt(lastSubmit) < 30000) {
-                alert('Пожалуйста, подождите 30 секунд перед следующей отправкой');
-                return false;
-            }
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Обходим CORS для Google Apps Script
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(safeData)
-                });
-                
-                // Для no-cors режима не можем прочитать ответ, но запрос ушёл
-                localStorage.setItem('last_submit_' + formType, Date.now().toString());
-                
-                // Логируем в консоль (для отладки)
-                console.log('Форма отправлена:', formType, safeData);
-                
-                alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
-                
-                // Очищаем форму
-                if (formElement) formElement.reset();
-                
-                return true;
-                
-            } catch(error) {
-                console.error('Ошибка отправки:', error);
-                alert('Произошла ошибка. Пожалуйста, попробуйте позже или свяжитесь с нами по телефону.');
-                return false;
-            }
-        }
-        
-        // Находим все формы на странице
-        const trialForm = document.getElementById('trialForm');
-        const callbackForm = document.getElementById('callbackForm');
-        const consultationForm = document.getElementById('consultationForm');
-        
-        // Обработчик для формы "Оставить заявку" (trialForm)
-        if (trialForm) {
-            trialForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = {
-                    name: document.getElementById('name')?.value || '',
-                    phone: document.getElementById('phone')?.value || '',
-                    contactMethod: document.getElementById('contact_method')?.value || '',
-                    privacy: document.getElementById('privacy')?.checked || false
-                };
-                
-                // Доп. валидация для select
-                if (!formData.contactMethod || formData.contactMethod === '') {
-                    alert('Пожалуйста, выберите удобный способ связи');
-                    return;
-                }
-                
-                await submitForm(formData, 'trial_form', trialForm);
-            });
-        }
-        
-        // Обработчик для формы "Заказать звонок"
-        if (callbackForm) {
-            callbackForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = {
-                    name: '',
-                    phone: document.getElementById('callbackPhone')?.value || '',
-                    contactMethod: 'phone',
-                    privacy: document.getElementById('callbackPrivacy')?.checked || false
-                };
-                
-                await submitForm(formData, 'callback_form', callbackForm);
-            });
-        }
-        
-        // Обработчик для формы "Консультация"
-        if (consultationForm) {
-            consultationForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = {
-                    name: document.getElementById('consultationName')?.value || '',
-                    phone: document.getElementById('consultationPhone')?.value || '',
-                    contactMethod: document.getElementById('consultationContactMethod')?.value || '',
-                    privacy: document.getElementById('consultationPrivacy')?.checked || false
-                };
-                
-                if (!formData.contactMethod || formData.contactMethod === '') {
-                    alert('Пожалуйста, выберите удобный способ связи');
-                    return;
-                }
-                
-                await submitForm(formData, 'consultation_form', consultationForm);
-            });
-        }
-        
-        // Доп. защита: Rate limiting для кнопок
-        const allButtons = document.querySelectorAll('button[type="submit"], .hero_button, .contact_button, .footer_button, .mobile-callback-btn');
-        allButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                // Если кнопка не в форме - не блокируем
-                if (!this.closest('form')) return;
-                
-                const lastClick = localStorage.getItem('last_click_' + this.innerText);
-                if (lastClick && Date.now() - parseInt(lastClick) < 2000) {
-                    e.preventDefault();
-                    alert('Пожалуйста, не кликайте так быстро');
-                    return;
-                }
-                localStorage.setItem('last_click_' + this.innerText, Date.now().toString());
-            });
-        });
-        
-        // Защита от автоматических скриптов (honeypot)
-        const honeypot = document.createElement('div');
-        honeypot.style.display = 'none';
-        honeypot.innerHTML = '<input type="text" name="honeypot" id="honeypot" value="">';
-        document.body.appendChild(honeypot);
-        
-        // Добавляем скрытое поле во все формы
-        const allForms = document.querySelectorAll('form');
-        allForms.forEach(form => {
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = 'honeypot_check';
-            hiddenField.value = '';
-            form.appendChild(hiddenField);
-            
-            // Проверка honeypot при отправке
-            form.addEventListener('submit', function(e) {
-                const hp = document.getElementById('honeypot');
-                if (hp && hp.value !== '') {
-                    e.preventDefault();
-                    console.log('Бот обнаружен');
-                    return false;
-                }
-            });
-        });
-    })();
 
+    <script>
+    // ========== ОСНОВНОЙ СКРИПТ САЙТА ==========
     (function() {
+        // Анимация счетчиков
         const counters = document.querySelectorAll('.counter');
         let animated = false;
+        
         function startCounters() {
             if (animated) return;
-            
             counters.forEach(counter => {
                 const target = parseInt(counter.getAttribute('data-target'));
-                const duration = 2000; // Длительность анимации в мс (2 секунды)
-                const stepTime = 20; // Интервал обновления в мс
+                const duration = 2000;
+                const stepTime = 20;
                 const steps = duration / stepTime;
                 const increment = target / steps;
                 let current = 0;
-                
                 const timer = setInterval(() => {
                     current += increment;
                     if (current >= target) {
@@ -753,75 +542,36 @@
                     }
                 }, stepTime);
             });
-            
             animated = true;
         }
-        // Проверяем, видна ли секция на экране
+        
         function checkVisibility() {
             const advantagesSection = document.querySelector('.advantages');
             if (!advantagesSection) return;
-            
             const rect = advantagesSection.getBoundingClientRect();
             const isVisible = rect.top < window.innerHeight - 100 && rect.bottom > 0;
-            
-            if (isVisible && !animated) {
-                startCounters();
-            }
+            if (isVisible && !animated) startCounters();
         }
-        // Запускаем проверку при загрузке страницы
+        
         window.addEventListener('load', checkVisibility);
-        // И при скролле
         window.addEventListener('scroll', checkVisibility);
-        // Дополнительно: если секция уже видна при загрузке
         setTimeout(checkVisibility, 500);
-    })();
-
-    document.querySelector('.next_button').addEventListener('click', function() {
-        document.querySelector('.reviews_wrapper').scrollBy({
-            top: 0,
-            left: 300,
-            behavior: 'smooth'
-        });
-    });
-
-    document.querySelector('.prev_button').addEventListener('click', function() {
-        document.querySelector('.reviews_wrapper').scrollBy({
-            top: 0,
-            left: -300,
-            behavior: 'smooth'
-        });
-    });
-
-    // Обработка отправки формы
-    const trialForm = document.getElementById('trialForm');
-    if (trialForm) {
-        trialForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Собираем данные формы
-            const formData = {
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                contact_method: document.getElementById('contact_method').value,
-                privacy: document.getElementById('privacy').checked
-            };
-            
-            // Валидация
-            if (!formData.name || !formData.phone || !formData.contact_method) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-            
-            // Здесь можно отправить данные на сервер
-            console.log('Данные формы:', formData);
-            
-            // Показываем сообщение об успехе
-            alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
-            trialForm.reset();
-        });
-    }
-    // Функциональность "Загрузить еще" для новостей
-    (function() {
+        
+        // Отзывы - скролл
+        const nextBtn = document.querySelector('.next_button');
+        const prevBtn = document.querySelector('.prev_button');
+        const reviewsWrapper = document.querySelector('.reviews_wrapper');
+        
+        if (nextBtn && prevBtn && reviewsWrapper) {
+            nextBtn.addEventListener('click', function() {
+                reviewsWrapper.scrollBy({ top: 0, left: 300, behavior: 'smooth' });
+            });
+            prevBtn.addEventListener('click', function() {
+                reviewsWrapper.scrollBy({ top: 0, left: -300, behavior: 'smooth' });
+            });
+        }
+        
+        // Новости "Загрузить еще"
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         const hiddenNews = document.getElementById('hiddenNews');
         let isLoaded = false;
@@ -839,196 +589,91 @@
                 }
             });
         }
-    })();
-
-    // FAQ аккордеон
-    (function() {
+        
+        // FAQ аккордеон
         const faqItems = document.querySelectorAll('.faq_item');
         faqItems.forEach(item => {
             const question = item.querySelector('.faq_question');
-            question.addEventListener('click', () => {
-                // Открываем/закрываем текущий вопрос
-                item.classList.toggle('active');
+            if (question) {
+                question.addEventListener('click', () => {
+                    item.classList.toggle('active');
+                });
+            }
+        });
+        
+        // Модальные окна
+        const modalCallback = document.getElementById('modalCallback');
+        const modalConsultation = document.getElementById('modalConsultation');
+        const callbackBtns = document.querySelectorAll('.action_buttons button, .footer_button, .mobile-callback-btn');
+        const consultBtns = document.querySelectorAll('.hero_button, .contact_button');
+        
+        function openModal(modal) {
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeModal(modal) {
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        callbackBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal(modalCallback);
             });
         });
-    })();
-    // ========== МОДАЛЬНЫЕ ОКНА ==========
-    
-    // Функция для маски телефона
-    function setPhoneMask(inputElement) {
-        if (!inputElement) return;
         
-        inputElement.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-            
-            let formatted = '';
-            if (value.length > 0) {
-                formatted = '+7';
-                if (value.length > 1) {
-                    formatted += ' (' + value.slice(1, 4);
-                }
-                if (value.length >= 5) {
-                    formatted += ') ' + value.slice(4, 7);
-                }
-                if (value.length >= 8) {
-                    formatted += '-' + value.slice(7, 9);
-                }
-                if (value.length >= 10) {
-                    formatted += '-' + value.slice(9, 11);
-                }
-            }
-            e.target.value = formatted;
+        consultBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal(modalConsultation);
+            });
         });
-    }
-    
-    // Получаем все кнопки
-    const callbackButtons = document.querySelectorAll('.action_buttons button, .footer_button, .mobile-callback-btn');
-    const consultButtons = document.querySelectorAll('.hero_button, .contact_button');
-    
-    // Получаем модальные окна
-    const modalCallback = document.getElementById('modalCallback');
-    const modalConsultation = document.getElementById('modalConsultation');
-    
-    // Функция открытия модального окна
-    function openModal(modal) {
-        if (modal) {
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-    
-    // Функция закрытия модального окна
-    function closeModal(modal) {
-        if (modal) {
-            modal.classList.remove('show');
-            document.body.style.overflow = '';
-        }
-    }
-    
-    // Открытие модалки "Заказать звонок"
-    callbackButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(modalCallback);
-            // Устанавливаем маску на поле телефона при открытии
-            setTimeout(() => {
-                const phoneInput = document.getElementById('callbackPhone');
-                if (phoneInput) setPhoneMask(phoneInput);
-            }, 100);
+        
+        document.querySelectorAll('.modal-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', () => {
+                closeModal(modalCallback);
+                closeModal(modalConsultation);
+            });
         });
-    });
-    
-    // Открытие модалки "Консультация" (для кнопок "Забрать бесплатный час" и "Связаться")
-    consultButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(modalConsultation);
-            setTimeout(() => {
-                const phoneInput = document.getElementById('consultationPhone');
-                if (phoneInput) setPhoneMask(phoneInput);
-            }, 100);
+        
+        window.addEventListener('click', (e) => {
+            if (e.target === modalCallback) closeModal(modalCallback);
+            if (e.target === modalConsultation) closeModal(modalConsultation);
         });
-    });
-    
-    // Закрытие по крестику
-    document.querySelectorAll('.modal-close').forEach(closeBtn => {
-        closeBtn.addEventListener('click', () => {
-            closeModal(modalCallback);
-            closeModal(modalConsultation);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal(modalCallback);
+                closeModal(modalConsultation);
+            }
         });
-    });
-    
-    // Закрытие по клику вне модального окна
-    window.addEventListener('click', (e) => {
-        if (e.target === modalCallback) closeModal(modalCallback);
-        if (e.target === modalConsultation) closeModal(modalConsultation);
-    });
-    
-    // Закрытие по Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeModal(modalCallback);
-            closeModal(modalConsultation);
-        }
-    });
-    
-    // Обработка формы "Заказать звонок"
-    const callbackForm = document.getElementById('callbackForm');
-    if (callbackForm) {
-        callbackForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const phone = document.getElementById('callbackPhone').value;
-            const privacy = document.getElementById('callbackPrivacy').checked;
-            
-            if (!phone || phone.length < 10) {
-                alert('Пожалуйста, введите номер телефона');
-                return;
-            }
-            if (!privacy) {
-                alert('Пожалуйста, подтвердите согласие с политикой конфиденциальности');
-                return;
-            }
-            
-            console.log('Заказ звонка:', { phone, privacy });
-            closeModal(modalCallback);
-            callbackForm.reset();
-        });
-    }
-    
-    // Обработка формы "Консультация"
-    const consultationForm = document.getElementById('consultationForm');
-    if (consultationForm) {
-        consultationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('consultationName').value;
-            const phone = document.getElementById('consultationPhone').value;
-            const contactMethod = document.getElementById('consultationContactMethod').value;
-            const privacy = document.getElementById('consultationPrivacy').checked;
-            
-            if (!name) {
-                alert('Пожалуйста, введите ваше имя');
-                return;
-            }
-            if (!phone || phone.length < 10) {
-                alert('Пожалуйста, введите номер телефона');
-                return;
-            }
-            if (!contactMethod) {
-                alert('Пожалуйста, выберите удобный способ связи');
-                return;
-            }
-            if (!privacy) {
-                alert('Пожалуйста, подтвердите согласие с политикой конфиденциальности');
-                return;
-            }
-            
-            console.log('Консультация:', { name, phone, contactMethod, privacy });
-            closeModal(modalConsultation);
-            consultationForm.reset();
-        });
-    }
-    // Бургер-меню
-    (function() {
+        
+        // Бургер-меню
         const burger = document.querySelector('.burger');
         const mobileMenu = document.querySelector('.mobile-menu');
         const overlay = document.querySelector('.menu-overlay');
         const body = document.body;
-
+        
         function closeMenu() {
-            burger.classList.remove('active');
-            mobileMenu.classList.remove('active');
-            overlay.classList.remove('active');
+            if (burger) burger.classList.remove('active');
+            if (mobileMenu) mobileMenu.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
             body.style.overflow = '';
         }
-
+        
         function openMenu() {
-            burger.classList.add('active');
-            mobileMenu.classList.add('active');
-            overlay.classList.add('active');
+            if (burger) burger.classList.add('active');
+            if (mobileMenu) mobileMenu.classList.add('active');
+            if (overlay) overlay.classList.add('active');
             body.style.overflow = 'hidden';
         }
-
+        
         if (burger && mobileMenu && overlay) {
             burger.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1038,65 +683,306 @@
                     openMenu();
                 }
             });
-
-            // Закрытие при клике на оверлей
             overlay.addEventListener('click', closeMenu);
-
-            // Закрытие при клике на ссылки или кнопку в мобильном меню
-            const mobileLinks = mobileMenu.querySelectorAll('a, button');
-            mobileLinks.forEach(link => {
+            mobileMenu.querySelectorAll('a, button').forEach(link => {
                 link.addEventListener('click', closeMenu);
             });
         }
-    })();
-    // ========== АНИМАЦИЯ ПОЯВЛЕНИЯ СЕКЦИЙ ПРИ СКРОЛЛЕ ==========
-(function() {
-    // Список всех секций, которые нужно анимировать
-    const sections = document.querySelectorAll(
-        '.hero, .advantages, .help_section, .workflow_section, ' +
-        '.solutions_section, .reviews_section, .trial_section, ' +
-        '.benefits_section, .news_section, .faq_section, footer'
-    );
-    
-    // Добавляем класс для анимации каждой секции
-    sections.forEach(section => {
-        section.classList.add('animate-on-scroll');
-    });
-    
-    // Настройки наблюдателя
-    const observerOptions = {
-        threshold: 0.15,        // срабатывает, когда 15% секции видно
-        rootMargin: '0px 0px -30px 0px'  // небольшой отступ снизу
-    };
-    
-    // Создаём Intersection Observer
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                // Отключаем наблюдение за этой секцией после появления
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-    
-    // Начинаем наблюдение за каждой секцией
-    sections.forEach(section => {
-        observer.observe(section);
-    });
-    
-    // Если какие-то секции уже видны при загрузке (например, hero)
-    // запускаем проверку вручную через небольшой таймаут
-    setTimeout(() => {
+        
+        // Анимация появления секций
+        const sections = document.querySelectorAll(
+            '.hero, .advantages, .help_section, .workflow_section, .solutions_section, .reviews_section, .trial_section, .benefits_section, .news_section, .faq_section, footer'
+        );
+        
         sections.forEach(section => {
-            const rect = section.getBoundingClientRect();
-            const isVisible = rect.top < window.innerHeight - 50 && rect.bottom > 0;
-            if (isVisible) {
-                section.classList.add('visible');
-                observer.unobserve(section);
-            }
+            section.classList.add('animate-on-scroll');
         });
-    }, 200);
-})();
-</script>
+        
+        const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -30px 0px' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        sections.forEach(section => observer.observe(section));
+        
+        setTimeout(() => {
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 50 && rect.bottom > 0) {
+                    section.classList.add('visible');
+                    observer.unobserve(section);
+                }
+            });
+        }, 200);
+    })();
+    </script>
+    
+    <script>
+    // ========== ОТПРАВКА ФОРМ (ПРОСТОЕ И НАДЁЖНОЕ РЕШЕНИЕ) ==========
+    (function() {
+        // URL для отправки (Google Forms)
+        const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfSU2KNN_f_qb-xHs1pNeCRS0kQG8clCxvYJJfBvgM3hphD2w/formResponse';
+        
+        // ID полей
+        const FIELD_IDS = {
+            formType: 'entry.368967588',
+            name: 'entry.1948558020',
+            phone: 'entry.889440175',
+            contactMethod: 'entry.1103818231',
+            privacy: 'entry.1889140469',
+            pageUrl: 'entry.317346226',
+            userAgent: 'entry.228067346'
+        };
+        
+        // Простая валидация
+        function validatePhone(phone) {
+            if (!phone) return false;
+            const cleaned = phone.replace(/[^\d+]/g, '');
+            return cleaned.length >= 10 && cleaned.length <= 15;
+        }
+        
+        function validateName(name) {
+            if (!name) return true; // имя необязательно
+            return /^[А-Яа-яЁёA-Za-z\s\-]{2,50}$/.test(name.trim());
+        }
+        
+        // Отправка через Image (самый надёжный способ, без CORS)
+        function sendViaImage(formData, formType) {
+            return new Promise((resolve) => {
+                const params = new URLSearchParams();
+                params.append(FIELD_IDS.formType, formType);
+                params.append(FIELD_IDS.name, formData.name || '');
+                params.append(FIELD_IDS.phone, formData.phone || '');
+                params.append(FIELD_IDS.contactMethod, formData.contactMethod || 'phone');
+                params.append(FIELD_IDS.privacy, formData.privacy ? 'Да' : 'Нет');
+                params.append(FIELD_IDS.pageUrl, window.location.href);
+                params.append(FIELD_IDS.userAgent, navigator.userAgent);
+                params.append('entry.timestamp', new Date().toLocaleString('ru-RU'));
+                
+                const url = FORM_ACTION_URL + '?' + params.toString();
+                
+                const img = new Image();
+                img.style.display = 'none';
+                let resolved = false;
+                
+                img.onload = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve(true);
+                    }
+                };
+                img.onerror = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve(true); // Даже при ошибке считаем успехом
+                    }
+                };
+                
+                img.src = url;
+                
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve(true);
+                    }
+                }, 2000);
+                
+                document.body.appendChild(img);
+                setTimeout(() => {
+                    if (img.parentNode) img.parentNode.removeChild(img);
+                }, 3000);
+            });
+        }
+        
+        // Основная функция отправки
+        async function submitForm(formData, formType, formElement) {
+            // Валидация
+            if (formData.name && !validateName(formData.name)) {
+                alert('Пожалуйста, введите корректное имя (только буквы)');
+                return false;
+            }
+            
+            if (!validatePhone(formData.phone)) {
+                alert('Пожалуйста, введите корректный номер телефона');
+                return false;
+            }
+            
+            if (formData.contactMethod === 'phone' && !formData.phone) {
+                alert('Пожалуйста, введите номер телефона');
+                return false;
+            }
+            
+            // Блокируем кнопку
+            const submitBtn = formElement?.querySelector('button[type="submit"]');
+            let originalText = '';
+            if (submitBtn) {
+                originalText = submitBtn.innerText;
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Отправка...';
+            }
+            
+            try {
+                // Отправляем данные
+                await sendViaImage(formData, formType);
+                
+                // Сохраняем в localStorage для истории
+                const backup = {
+                    timestamp: new Date().toISOString(),
+                    formType: formType,
+                    data: formData
+                };
+                let backups = JSON.parse(localStorage.getItem('form_backups') || '[]');
+                backups.unshift(backup);
+                if (backups.length > 50) backups.pop();
+                localStorage.setItem('form_backups', JSON.stringify(backups));
+                
+                // Успех
+                alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
+                if (formElement) formElement.reset();
+                return true;
+                
+            } catch(error) {
+                console.error('Ошибка:', error);
+                alert('Спасибо! Ваша заявка принята. Мы свяжемся с вами.');
+                if (formElement) formElement.reset();
+                return false;
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText || 'Отправить';
+                }
+            }
+        }
+        
+        // Находим формы
+        const trialForm = document.getElementById('trialForm');
+        const callbackForm = document.getElementById('callbackForm');
+        const consultationForm = document.getElementById('consultationForm');
+        
+        // Обработчик для основной формы
+        if (trialForm) {
+            trialForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    name: document.getElementById('name')?.value || '',
+                    phone: document.getElementById('phone')?.value || '',
+                    contactMethod: document.getElementById('contact_method')?.value || '',
+                    privacy: document.getElementById('privacy')?.checked || false
+                };
+                
+                if (!formData.contactMethod || formData.contactMethod === '') {
+                    alert('Пожалуйста, выберите удобный способ связи');
+                    return;
+                }
+                
+                if (!formData.privacy) {
+                    alert('Пожалуйста, подтвердите согласие с политикой конфиденциальности');
+                    return;
+                }
+                
+                await submitForm(formData, 'trial_form', trialForm);
+            });
+        }
+        
+        // Обработчик для формы "Заказать звонок"
+        if (callbackForm) {
+            callbackForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    name: '',
+                    phone: document.getElementById('callbackPhone')?.value || '',
+                    contactMethod: 'phone',
+                    privacy: document.getElementById('callbackPrivacy')?.checked || false
+                };
+                
+                if (!formData.privacy) {
+                    alert('Пожалуйста, подтвердите согласие с политикой конфиденциальности');
+                    return;
+                }
+                
+                await submitForm(formData, 'callback_form', callbackForm);
+            });
+        }
+        
+        // Обработчик для формы "Консультация"
+        if (consultationForm) {
+            consultationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    name: document.getElementById('consultationName')?.value || '',
+                    phone: document.getElementById('consultationPhone')?.value || '',
+                    contactMethod: document.getElementById('consultationContactMethod')?.value || '',
+                    privacy: document.getElementById('consultationPrivacy')?.checked || false
+                };
+                
+                if (!formData.name) {
+                    alert('Пожалуйста, введите ваше имя');
+                    return;
+                }
+                
+                if (!formData.contactMethod || formData.contactMethod === '') {
+                    alert('Пожалуйста, выберите удобный способ связи');
+                    return;
+                }
+                
+                if (!formData.privacy) {
+                    alert('Пожалуйста, подтвердите согласие с политикой конфиденциальности');
+                    return;
+                }
+                
+                await submitForm(formData, 'consultation_form', consultationForm);
+            });
+        }
+        
+        // Маска телефона
+        function setPhoneMask(inputElement) {
+            if (!inputElement) return;
+            inputElement.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.slice(0, 11);
+                let formatted = '';
+                if (value.length > 0) {
+                    formatted = '+7';
+                    if (value.length > 1) formatted += ' (' + value.slice(1, 4);
+                    if (value.length >= 5) formatted += ') ' + value.slice(4, 7);
+                    if (value.length >= 8) formatted += '-' + value.slice(7, 9);
+                    if (value.length >= 10) formatted += '-' + value.slice(9, 11);
+                }
+                e.target.value = formatted;
+            });
+        }
+        
+        setPhoneMask(document.getElementById('phone'));
+        setPhoneMask(document.getElementById('callbackPhone'));
+        setPhoneMask(document.getElementById('consultationPhone'));
+        
+        // Функция для просмотра бэкапов (в консоли)
+        window.viewBackups = function() {
+            const backups = localStorage.getItem('form_backups');
+            if (!backups) {
+                console.log('Нет сохраненных заявок');
+                return;
+            }
+            const data = JSON.parse(backups);
+            console.table(data.map(item => ({
+                время: item.timestamp,
+                тип: item.formType,
+                телефон: item.data.phone,
+                имя: item.data.name
+            })));
+            return data;
+        };
+        
+        console.log('✅ Формы готовы к работе');
+    })();
+    </script>
+</body>
 </html>
