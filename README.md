@@ -40,7 +40,7 @@
 ```javascript
 const FORM_ACTION_URL = 'ВАША_ССЫЛКА_НА_ФОРМУ';
 const FIELD_IDS = {
-    formType: 'entry.XXXXXX',  // ID полей из вашей формы
+    formType: 'entry.XXXXXX',  // ID полей из вашей формы - чтобы их получить нужно открыть консоль f12, отправить форму и в консоли, в network, в playloud в первом файле наверху (formResponse) - вы увидите эти id
     name: 'entry.XXXXXX',
     phone: 'entry.XXXXXX',
     // ... остальные поля
