@@ -342,6 +342,7 @@ main{
     display: flex;
     flex-direction: column;
     background-image: url("/img/orange-abstract-stylish-background-gradient-color-free-vector.jpg");
+    background-color: #ff691e;
     font-size: 18px;
 }
 .workflow_button_container p, .workflow_button_container .contact_button{
@@ -474,6 +475,7 @@ main{
     margin: 3rem 0;
     border-radius: 30px;
     background-image: url("/img/orange-abstract-stylish-background-gradient-color-free-vector.jpg");
+    background-color: #ff691e;
 }
 
 .trial_container {
