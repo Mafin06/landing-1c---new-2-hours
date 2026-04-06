@@ -448,7 +448,7 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2 class="modal-title">Оставьте свой номер</h2>
-            <p class="modal-subtitle">Я перезвоню через 5 минут</p>
+            <p class="modal-subtitle">Мы перезвоним через 5 минут</p>
             <form class="modal-form" id="callbackForm">
                 <div class="modal-form-group">
                     <input type="tel" id="callbackPhone" name="phone" placeholder="+7 (000) 000-00-00" required>
@@ -469,7 +469,7 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2 class="modal-title">Запишитесь на консультацию</h2>
-            <p class="modal-subtitle">Заполните форму и я свяжусь с вами</p>
+            <p class="modal-subtitle">Заполните форму и мы свяжемся с вами</p>
             <form class="modal-form" id="consultationForm">
                 <div class="modal-form-group">
                     <input type="text" id="consultationName" name="name" placeholder="Ваше имя" required>
@@ -971,7 +971,6 @@
             }
             
             console.log('Заказ звонка:', { phone, privacy });
-            alert('Спасибо! Я перезвоню вам в ближайшее время.');
             closeModal(modalCallback);
             callbackForm.reset();
         });
@@ -1005,7 +1004,6 @@
             }
             
             console.log('Консультация:', { name, phone, contactMethod, privacy });
-            alert('Спасибо! Я свяжусь с вами в ближайшее время.');
             closeModal(modalConsultation);
             consultationForm.reset();
         });
